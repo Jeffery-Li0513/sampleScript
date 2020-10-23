@@ -1,3 +1,4 @@
+    @classmethod    # 类方法可以让类每次实例化后都能加载一些记忆。参数cls代表本类；类方法中处理的变量一定要是类变量，因为在类方法里不能用self来寻找
     def from_file(cls, filename, primitive=False, sort=False, merge_tol=0.0):
         """
         Reads a structure from a file. For example, anything ending in
