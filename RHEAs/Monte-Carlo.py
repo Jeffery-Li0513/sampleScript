@@ -2,6 +2,7 @@
 基于metropolis算法的Monte Carlo模拟
 '''
 
+# from pymatgen.core import Structure, sites
 from pymatgen.core import Structure, sites
 from pymatgen.io.lammps.data import LammpsData
 import re
@@ -71,7 +72,7 @@ class ExchangeAtoms(object):
         输出生成的新结构。
         :return:
         '''
-        new_structure = self.structure.to('cif', 'structure.cif')
+        new_structure = self.structure.to('poscar', 'POSCAR-new')
     def metropolis(self, E1, E2, T):
         '''
         判断是否能够进行交换，每交换一对原子都进行一次判定。如果不进行交换，就不用导出新的结构文件，直接将原来的结构文件复制过去即可。
@@ -123,34 +124,29 @@ class Lammps_MC(object):
     def generate_new_structure(self):
         self.structure.write_file('new_structure.data')
 
-def metropolis(E1, E2, T):
-    '''
-    判断是否能够进行交换，每交换一对原子都进行一次判定。如果不进行交换，就不用导出新的结构文件，直接将原来的结构文件复制过去即可。
-    :return: True or False
-    '''
-    k = 8.617333262145E-5                       # 玻尔兹曼常数，eV/K 单位
-    random_number = np.random.rand()             # 生成0-1之间的随机数
-    delta_E = E1 - E2
-    if (E1 > E2):
-        return True
-    possibility = math.exp(- delta_E / (k*T))
-    print(possibility)
-    if possibility > random_number:
-        return True
-    return False
+
+# if __name__ == '__main__':
+#     k = 0
+#     T = 300
+#     for i in range(10):
+#         mc = Lammps_MC('NbMoTaW_{}.data'.format(k), atom_style='atomic')
+#         atoms_pair = mc.chose_two_atoms()
+#         mc.exchange(atoms_pair=atoms_pair)
+#         E1 = np.random.random()
+#         E2 = np.random.random()
+#         print(metropolis(E1=E1, E2=E2, T=T))
+#         if metropolis(E1=E1, E2=E2, T=T):
+#             k += 1
+#             mc.generate_new_structure()
+#             shutil.copyfile('new_structure.data', 'NbMoTaW_{}.data'.format(k))
+#             print("第{}次交换".format(k) + str(atoms_pair))
 
 if __name__ == '__main__':
-    k = 0
     T = 300
-    for i in range(10):
-        mc = Lammps_MC('NbMoTaW_{}.data'.format(k), atom_style='atomic')
-        atoms_pair = mc.chose_two_atoms()
-        mc.exchange(atoms_pair=atoms_pair)
-        E1 = np.random.random()
-        E2 = np.random.random()
-        print(metropolis(E1=E1, E2=E2, T=T))
-        if metropolis(E1=E1, E2=E2, T=T):
-            k += 1
-            mc.generate_new_structure()
-            shutil.copyfile('new_structure.data', 'NbMoTaW_{}.data'.format(k))
-            print("第{}次交换".format(k) + str(atoms_pair))
+    mc_vasp = ExchangeAtoms('POSCAR-old', exchange_times=1)
+    exchange_atoms = mc_vasp.chose_two_atom()
+    mc_vasp.exchange(exchange_atoms)
+    mc_vasp.generate_new_structure()
+    # 向文件中输入交换的原子，以及最后有没有被交换
+    with open('log.txt', 'a+') as f:
+        f.write(str(exchange_atoms) + "\n")
