@@ -14,17 +14,17 @@ def metropolis(E1, E2, T):
     '''
     k = 8.617333262145E-5                       # 玻尔兹曼常数，eV/K 单位
     random_number = np.random.rand()             # 生成0-1之间的随机数
-    delta_E = E1 - E2
+    delta_E = E2 - E1
     if (E1 > E2):
         return True
     possibility = math.exp(- delta_E / (k*T))
-    if possibility > random_number:
+    if (possibility > random_number):
         return True
     return False
 
 
 if __name__ == '__main__':
-    E1 = sys.argv[1]
-    E2 = sys.argv[2]
-    T = sys.argv[3]
+    E1 = float(sys.argv[1])
+    E2 = float(sys.argv[2])
+    T = float(sys.argv[3])
     print(metropolis(E1=E1, E2=E2, T=T))

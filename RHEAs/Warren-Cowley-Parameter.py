@@ -4,6 +4,11 @@
 '''
 
 import numpy as np
+import os
+import matplotlib.pyplot as plt
+import re
+
+
 
 # 读取POSCAR文件并处理数据
 def read_POSCAR(POSCAR):
@@ -37,7 +42,7 @@ def read_POSCAR(POSCAR):
             elements_coor.append(one_element_coor)
         atoms = dict(zip(elements, elements_coor))
 
-    return atoms, elements, coor
+    return dict(sorted(atoms.items(), key=lambda x: x[0])), dict(sorted(elements.items(), key=lambda x: x[0])), coor
 
 
 # 计算两点之间的距离，考虑周期性边界条件
@@ -65,7 +70,7 @@ def first_neigh(coor, scalor):
     return first_neighboor
 
 # 计算warren-cowley参数，一次性计算出所有原子对的SRO参数
-def cacu_SRO(elements, first_neighboor):
+def cacu_SRO(elements, atoms, first_neighboor):
     SRO = []                            # 储存计算出的SRO参数，是按顺序排列的，之后转换为n*n矩阵即可
     for element_i in elements:
         Zi = 0
@@ -84,26 +89,45 @@ def cacu_SRO(elements, first_neighboor):
             # 计算该原子对的SRO，需要该原子数，原子分数
             fraction_j = elements[element_j] / sum(elements.values())
             WCP_ij = 1 - Zij / (Zi * fraction_j)
+            # SRO.append(float("{:.3}".format(WCP_ij)))
             SRO.append(WCP_ij)
             # print(Zij, Zi, fraction_j)
     return np.array(SRO).reshape(4, 4)
 
 
-atoms, elements, coor = read_POSCAR('POSCAR-5')
-first_neighboor = first_neigh(coor, scalor=12)
-SRO = cacu_SRO(elements, first_neighboor)
-print(SRO)
+# atoms, elements, coor = read_POSCAR('POSCAR')
+# first_neighboor = first_neigh(coor, scalor=12)
+# SRO = cacu_SRO(elements, first_neighboor)
+# print(SRO)
+#
+# atoms, elements, coor = read_POSCAR('POSCAR-76')
+# first_neighboor = first_neigh(coor, scalor=12)
+# SRO = cacu_SRO(elements, first_neighboor)
+# print(SRO)
 
-# print(first_neighboor)
-# print(atoms)
-# print(elements)
-
-atoms, elements, coor = read_POSCAR('best1-POSCAR')
-first_neighboor = first_neigh(coor, scalor=12)
-SRO = cacu_SRO(elements, first_neighboor)
-print(SRO)
-
-atoms, elements, coor = read_POSCAR('best2-POSCAR')
-first_neighboor = first_neigh(coor, scalor=12)
-SRO = cacu_SRO(elements, first_neighboor)
-print(SRO)
+if __name__ == '__main__':
+    element_order = ["Nb", "Mo", "Ta", "W"]
+    path_list = os.listdir("structures/")
+    print(path_list)
+    array44 = np.zeros((len(element_order), len(element_order)))
+    for path in path_list:
+        atoms, elements, coor = read_POSCAR("structures/" + path)
+        first_neighboor = first_neigh(coor, scalor=12)
+        SRO = cacu_SRO(elements, atoms, first_neighboor)
+        array44 += SRO                      # 每一种都是取三个的平均值
+        if (path_list.index(path)+1)%3 == 0:
+            SRO = np.around(array44 / 3, decimals=3)                        # 设置取三位小数
+            array44 = np.zeros((len(element_order), len(element_order)))
+            print(SRO)
+            # 画图
+            figure = plt.figure()
+            f1 = figure.add_subplot(111)
+            f1.matshow(SRO, cmap=plt.cm.BrBG, vmin=-1, vmax=1)
+            for i in range(SRO.shape[0]):
+                for j in range(SRO.shape[1]):
+                    # plt.text(x=list(elements.keys())[j], y=list(elements.keys())[i], s=SRO[i,j])
+                    f1.text(x=j, y=i, s=SRO[i, j], verticalalignment='center', horizontalalignment='center')
+            f1.set_xticklabels(['']+list(elements.keys()))
+            f1.set_yticklabels([''] + list(elements.keys()))
+            f1.set_title(path[:-2])
+            plt.savefig(path[:-2]+'.jpg', dpi=300)

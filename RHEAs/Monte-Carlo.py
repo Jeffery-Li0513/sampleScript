@@ -72,7 +72,8 @@ class ExchangeAtoms(object):
         输出生成的新结构。
         :return:
         '''
-        new_structure = self.structure.to('poscar', 'POSCAR-new')
+        sorted_structure = self.structure.get_sorted_structure()
+        new_structure = sorted_structure.to('poscar', 'POSCAR-new')
     def metropolis(self, E1, E2, T):
         '''
         判断是否能够进行交换，每交换一对原子都进行一次判定。如果不进行交换，就不用导出新的结构文件，直接将原来的结构文件复制过去即可。

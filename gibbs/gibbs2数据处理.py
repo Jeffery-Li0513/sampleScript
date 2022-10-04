@@ -60,4 +60,4 @@ if __name__ == '__main__':
     dirname = "source_data/"
     path_list = os.listdir(dirname)
     for path in path_list:
-        export_data_t(path=(dirname + path), index=2, pressure=0.00)
+        export_data_t(path=(dirname + path), index=8, pressure=0.00)
