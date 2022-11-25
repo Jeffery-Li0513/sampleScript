@@ -42,5 +42,10 @@ ys_ = np.select([~swaps, swaps], [xs, ys])
 mutation_prob = random.random()
 # print(mutation_prob)
 
-seq = ["a", 'b', 'c']
-print(''.join(seq))
+# seq = ["a", 'b', 'c']
+# print(''.join(seq))
+
+a = '{"a":"1", "b":"1"}'
+b = eval(a)
+print(b, type(b))
+print(a)

@@ -13,3 +13,25 @@ from ase.io.vasp import read_vasp
 # print(dict(a1))
 # print(list(dic.keys()))
 
+import copy
+import numpy as np
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+# fig, axes = plt.subplots(1, 1, figsize=(5, 10))
+# fig.subplots_adjust(hspace=4)
+#
+# # print(axes[0])
+#
+# # fig = plt.figure()
+# cmap1 = copy.copy(mpl.cm.viridis)
+# norm1 = mpl.colors.Normalize(vmin=0, vmax=100)
+# im1 = mpl.cm.ScalarMappable(norm=norm1, cmap=cmap1)
+# cbar1 = fig.colorbar(
+#     im1, cax=axes, orientation='vertical',
+#     ticks=np.linspace(0, 100, 11),
+#     label='colorbar with Normalize'
+# )
+#
+# plt.show()

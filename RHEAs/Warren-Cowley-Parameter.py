@@ -6,6 +6,7 @@
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+from matplotlib import colors
 import re
 
 
@@ -118,16 +119,18 @@ if __name__ == '__main__':
         if (path_list.index(path)+1)%3 == 0:
             SRO = np.around(array44 / 3, decimals=3)                        # 设置取三位小数
             array44 = np.zeros((len(element_order), len(element_order)))
-            print(SRO)
+            # print(SRO)
             # 画图
             figure = plt.figure()
             f1 = figure.add_subplot(111)
-            f1.matshow(SRO, cmap=plt.cm.BrBG, vmin=-1, vmax=1)
+            f1.matshow(SRO, cmap=plt.cm.BrBG, vmin=-2, vmax=1)
+            # a = f1.pcolormesh(SRO, norm=colors.Normalize(vmin=-2, vmax=1), cmap=plt.cm.BrBG)
+            # figure.colorbar(a, ax=f1)
             for i in range(SRO.shape[0]):
                 for j in range(SRO.shape[1]):
                     # plt.text(x=list(elements.keys())[j], y=list(elements.keys())[i], s=SRO[i,j])
                     f1.text(x=j, y=i, s=SRO[i, j], verticalalignment='center', horizontalalignment='center')
-            f1.set_xticklabels(['']+list(elements.keys()))
+            f1.set_xticklabels([''] + list(elements.keys()))
             f1.set_yticklabels([''] + list(elements.keys()))
             f1.set_title(path[:-2])
             plt.savefig(path[:-2]+'.jpg', dpi=300)
