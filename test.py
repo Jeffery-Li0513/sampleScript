@@ -1,51 +1,8 @@
-s = [[] for i in range(0, 5)]
+import re
 
-# print(s)
+print(re.sub('[:/]', '', '碳/碳复合材料的激光烧蚀行为与机制'))
+print(re.sub('[:/<sub>]', '', 'BN<sub>mf<sub>-Si<sub>3<sub>N<sub>4w<sub>Si<sub>3<sub>N<sub>4<sub>复合材料的制备与性能'))
+print(re.findall(r'^.*/[0-9]*\.html$', 'https://hkxb.buaa.edu.cn/article/2022/1000-6893/20221028.html'))
+print('https://hkxb.buaa.edu.cn/article/2022/1000-6893/20221028.html'.rstrip(r'[0-9]\.html'))
 
-import numpy as np
-import random
-
-n = 5
-k = 2
-
-# print(np.random.random(n) < 0.5)
-# print(np.random.random([2,2]))              # 生成二维随机数
-xs = np.random.random([2,5])
-ys = np.random.random([2,5])
-swaps = (np.random.random(n) < 0.5).repeat(k).reshape(k, n)
-xs_ = np.select([swaps, ~swaps], [xs, ys])
-ys_ = np.select([~swaps, swaps], [xs, ys])
-# print(xs)
-# print(ys)
-# print(xs_)
-# print(ys_)
-
-
-# ll = np.random.random([3,4,2])
-# print(ll)
-# print(np.shape(ll))         # 方法
-# print(ll.shape)             # 属性
-# print(ll.shape[-1])
-# print(len(ll))
-# print(~True)
-
-# front = [i for i in range(5)]
-# print(front)
-# del front[len(front)-1]
-# print(front)
-
-# ll = [-i for i in range(10)]
-# print(ll)
-# print(ll[:])
-# print(min(ll))
-
-mutation_prob = random.random()
-# print(mutation_prob)
-
-# seq = ["a", 'b', 'c']
-# print(''.join(seq))
-
-a = '{"a":"1", "b":"1"}'
-b = eval(a)
-print(b, type(b))
-print(a)
+print('/'.join('https://hkxb.buaa.edu.cn/article/2022/1000-6893/20221028.html'.split('/')[:-1]))
