@@ -1,6 +1,7 @@
 import scipy.special as ssp             # 里面有激活函数sigmoid
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.model_selection import train_test_split
 import numpy as np
 import os, gzip
 import time
@@ -40,8 +41,8 @@ class neuralNetwork:
         '''
 
         # 将导入的输入数据和标签转换成二维矩阵
-        inputs = np.array(inputs_list, ndim=2).T
-        targets = np.array(targets_list, ndim=2).T
+        inputs = np.array(inputs_list, ndmin=2).T
+        targets = np.array(targets_list, ndmin=2).T
 
         # 进行前向传播
         hidden_inputs = np.dot(self.wih, inputs)
@@ -75,7 +76,7 @@ class neuralNetwork:
         :return: 预测测试标签
         '''
 
-        inputs = np.array(inputs_list, ndim=2).T
+        inputs = np.array(inputs_list, ndmin=2).T
 
         # calculate signals into hidden layer
         hidden_inputs = np.dot(self.wih, inputs)
@@ -134,6 +135,57 @@ def load_data(data_folder):
     :param data_folder:数据来源
     :return: 训练集和测试集的数据及标签
     '''
+    tmp = np.loadtxt(data_folder, dtype=np.str, delimiter=",")
+    data = tmp[1:, 1:-1].astype(np.float)
+    label = tmp[1:, -1].astype(np.int)
+
+    train_data, test_data, train_label, test_label = train_test_split(data, label, test_size=0.3, random_state=7)
+
+    return (train_data, train_label), (test_data, test_label)
+
+
+if __name__ == '__main__':
+    tic = time.time()
+    # 设置输入节点数、隐藏层节点数、输出节点数
+    input_nodes = 16
+    hidden_nodes = 200   # 隐藏层节点数设置为200，可以随意设置，理论上节点数越多，得到的算法准确率越高；实际上达到一定值后将会基本不变，而且节点数越多，训练算法所需花费时间越长，因此节点数不宜设置的过多
+    output_nodes = 3    # 一共有五种药物，所以输出节点数为5
+    learning_rate = 0.09 # 需要进行测试
+
+    # 创建神经网络
+    n = neuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
+    (train_data, train_label), (test_data, test_label) = load_data("恒星/train.csv")
+
+    n_train = train_data.shape[0]       # 有多少条数据进行训练
+    n_test= test_data.shape[0]
+
+    epochs = 50
+    for e in range(epochs):
+        # 遍历所有输入数据
+        for i in range(n_train):
+            data = train_data[i, :]
+            label = train_label[i]
+            # 建立输出结果矩阵，对应位置的标签数值为0.99.其他位置为0.01
+            targets = np.zeros(output_nodes) + 0.01
+            targets[int(label)] = 0.99
+            n.train(data, targets)
+            pass
+
+        # 用query对测试集进行测试
+        predict_label = []
+        for i in range(n_test):
+            data = test_data[i, :]
+            label = test_label[i]
+
+            output = n.query(data)
+            final_output = np.argmax(output)
+
+            predict_label.append(final_output)
+        print(accuracy_score(test_label, np.array(predict_label), normalize=True))
+
+        pass
+
+
 
 
 
