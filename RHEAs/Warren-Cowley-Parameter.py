@@ -58,17 +58,17 @@ def distance(i, j, scalor):
     if (abs(dz) > scalor*0.5):
         dz = scalor - abs(dz)
     dis = np.sqrt(dx**2 + dy**2 + dz**2)
-    return dis
+    return round(dis, 3)
 
 # 计算第一近邻距离，只需将第一个原子与剩余原子的距离算一遍，取最小值即可
 def first_neigh(coor, scalor):
     first = coor[0]
     distance_list = []
     for i in coor[1:]:
-        dis = distance(i, first, scalor=12)
+        dis = distance(i, first, scalor=15)
         distance_list.append(dis)
     first_neighboor = min(distance_list)
-    return first_neighboor
+    return round(first_neighboor, 3)
 
 # 计算warren-cowley参数，一次性计算出所有原子对的SRO参数
 def cacu_SRO(elements, atoms, first_neighboor):
@@ -78,59 +78,66 @@ def cacu_SRO(elements, atoms, first_neighboor):
         for element_k in elements:
             for i in atoms[element_i]:
                 for j in atoms[element_k]:
-                    if distance(i, j, scalor=12) == first_neighboor:
+                    if distance(i, j, scalor=15) == first_neighboor:
                         Zi += 1
         for element_j in elements:
             Zij = 0
             for i in atoms[element_i]:
                 for j in atoms[element_j]:
-                    if distance(i, j, scalor=12) == first_neighboor:
+                    if distance(i, j, scalor=15) == first_neighboor:
                         # i原子对应的j近邻原子数加1
                         Zij += 1
             # 计算该原子对的SRO，需要该原子数，原子分数
             fraction_j = elements[element_j] / sum(elements.values())
             WCP_ij = 1 - Zij / (Zi * fraction_j)
-            # SRO.append(float("{:.3}".format(WCP_ij)))
             SRO.append(WCP_ij)
-            # print(Zij, Zi, fraction_j)
+            print(Zij, Zi, fraction_j, element_i+element_j)
     return np.array(SRO).reshape(4, 4)
 
-
-# atoms, elements, coor = read_POSCAR('POSCAR')
-# first_neighboor = first_neigh(coor, scalor=12)
-# SRO = cacu_SRO(elements, first_neighboor)
-# print(SRO)
-#
-# atoms, elements, coor = read_POSCAR('POSCAR-76')
-# first_neighboor = first_neigh(coor, scalor=12)
-# SRO = cacu_SRO(elements, first_neighboor)
-# print(SRO)
 
 if __name__ == '__main__':
     element_order = ["Nb", "Mo", "Ta", "W"]
     path_list = os.listdir("structures/")
     print(path_list)
     array44 = np.zeros((len(element_order), len(element_order)))
-    for path in path_list:
-        atoms, elements, coor = read_POSCAR("structures/" + path)
-        first_neighboor = first_neigh(coor, scalor=12)
-        SRO = cacu_SRO(elements, atoms, first_neighboor)
-        array44 += SRO                      # 每一种都是取三个的平均值
-        if (path_list.index(path)+1)%3 == 0:
-            SRO = np.around(array44 / 3, decimals=3)                        # 设置取三位小数
-            array44 = np.zeros((len(element_order), len(element_order)))
-            # print(SRO)
-            # 画图
-            figure = plt.figure()
-            f1 = figure.add_subplot(111)
-            f1.matshow(SRO, cmap=plt.cm.BrBG, vmin=-2, vmax=1)
-            # a = f1.pcolormesh(SRO, norm=colors.Normalize(vmin=-2, vmax=1), cmap=plt.cm.BrBG)
-            # figure.colorbar(a, ax=f1)
-            for i in range(SRO.shape[0]):
-                for j in range(SRO.shape[1]):
-                    # plt.text(x=list(elements.keys())[j], y=list(elements.keys())[i], s=SRO[i,j])
-                    f1.text(x=j, y=i, s=SRO[i, j], verticalalignment='center', horizontalalignment='center')
-            f1.set_xticklabels([''] + list(elements.keys()))
-            f1.set_yticklabels([''] + list(elements.keys()))
-            f1.set_title(path[:-2])
-            plt.savefig(path[:-2]+'.jpg', dpi=300)
+    # for path in path_list:
+    #     atoms, elements, coor = read_POSCAR("structures/" + path)
+    #     first_neighboor = first_neigh(coor, scalor=12)
+    #     SRO = cacu_SRO(elements, atoms, first_neighboor)
+    #     array44 += SRO                      # 每一种都是取三个的平均值
+    #     if (path_list.index(path)+1)%3 == 0:
+    #         SRO = np.around(array44 / 3, decimals=3)                        # 设置取三位小数
+    #         array44 = np.zeros((len(element_order), len(element_order)))
+    #         # print(SRO)
+    #         # 画图
+    #         figure = plt.figure()
+    #         f1 = figure.add_subplot(111)
+    #         f1.matshow(SRO, cmap=plt.cm.BrBG, vmin=-2, vmax=1)
+    #         # a = f1.pcolormesh(SRO, norm=colors.Normalize(vmin=-2, vmax=1), cmap=plt.cm.BrBG)
+    #         # figure.colorbar(a, ax=f1)
+    #         for i in range(SRO.shape[0]):
+    #             for j in range(SRO.shape[1]):
+    #                 # plt.text(x=list(elements.keys())[j], y=list(elements.keys())[i], s=SRO[i,j])
+    #                 f1.text(x=j, y=i, s=SRO[i, j], verticalalignment='center', horizontalalignment='center')
+    #         f1.set_xticklabels([''] + list(elements.keys()))
+    #         f1.set_yticklabels([''] + list(elements.keys()))
+    #         f1.set_title(path[:-2])
+    #         plt.savefig(path[:-2]+'.jpg', dpi=300)
+    atoms, elements, coor = read_POSCAR("structures/POSCAR-nonequimolar-2")
+    first_neighboor = first_neigh(coor, scalor=15)
+    print(first_neighboor)
+    SRO = cacu_SRO(elements, atoms, first_neighboor)
+    SRO = np.around(SRO, decimals=3)
+    figure = plt.figure()
+    f1 = figure.add_subplot(111)
+    f1.matshow(SRO, cmap=plt.cm.BrBG, vmin=-2, vmax=1)
+    # a = f1.pcolormesh(SRO, norm=colors.Normalize(vmin=-2, vmax=1), cmap=plt.cm.BrBG)
+    # figure.colorbar(a, ax=f1)
+    for i in range(SRO.shape[0]):
+        for j in range(SRO.shape[1]):
+            # plt.text(x=list(elements.keys())[j], y=list(elements.keys())[i], s=SRO[i,j])
+            f1.text(x=j, y=i, s=SRO[i, j], verticalalignment='center', horizontalalignment='center')
+    f1.set_xticklabels([''] + list(elements.keys()))
+    f1.set_yticklabels([''] + list(elements.keys()))
+    f1.set_title('non-equimolar')
+    plt.savefig('non-equimolar-2.jpg', dpi=300)
