@@ -21,18 +21,26 @@ def get_data():
     data = pd.DataFrame(columns=['formula', 'Nb', 'Mo', 'Ta', 'W', 'C11', 'C12', 'C44', 'a', 'b', 'c', 'G', 'B', 'E', 'v', 'Pugh', 'Zener'])
     # 获取目录列表
     path = os.getcwd()
-    dir_list = [i for i in os.listdir('./') if os.path.isdir(os.path.join(path, i))]
+    dir_list = []
+    with open(path + '/random_solutions_1_97.txt') as f:
+        solutions = f.readlines()
+        for j in range(400):
+            fraction = solutions[j].split()
+            solution = 'Nb' + fraction[0] + 'Mo' + fraction[1] + 'Ta' + fraction[2] + 'W' + fraction[3]
+            if os.path.isdir(os.path.join(path, solution)):
+                dir_list.append(solution)
+
     print(len(dir_list))
     for i in dir_list:
         print(i)
         formula = i
-        elements= re.findall(r'[A-Za-z]{1,2}', i)        # 获取元素，{1,2}设置匹配前面字符的最小和最大次数
+        elements= re.findall(r'[A-Za-z]{1,2}', i)        # 获取元素
         fraction = re.findall(r'[0-9]{1,2}', i)         # 获取元素的含量
         Nb = int(fraction[0])
         Mo = int(fraction[1])
         Ta = int(fraction[2])
         W = int(fraction[3])
-        with open(path + '/' + i + '/output', 'r') as f:
+        with open(path + '/' + i + '/output-retart', 'r') as f:
             lines = f.readlines()
             if lines[-1].split()[0] == 'Total' and lines[-1].split()[1] == 'wall':
                 C11 = round(float(lines[-10].split()[2]), 3)
@@ -61,3 +69,4 @@ def get_data():
 
 if __name__ == '__main__':
     get_data()
+

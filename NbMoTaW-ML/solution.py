@@ -30,8 +30,20 @@ def random_select(num):
     '''
     all_solutions = np.loadtxt('all_solutions_1_97.txt', dtype=np.int32)
     random_solutions = np.random.choice(all_solutions.shape[0], num, replace=False)
-    np.savetxt('random_solutions_1_97.txt', all_solutions[random_solutions], fmt='%d')
+    np.savetxt('random_solutions_500.txt', all_solutions[random_solutions], fmt='%d')
+
+
+def remove_and_select(num, old_selected):
+    '''
+    从all_solutions.txt文件中删除重复的解。
+    '''
+    all_solutions = np.loadtxt('all_solutions_1_97.txt', dtype=np.int32)
+    have_selected = np.loadtxt(old_selected, dtype=np.int32)
+    all_solutions = np.delete(all_solutions, have_selected, axis=0)
+    random_solutions = np.random.choice(all_solutions.shape[0], num, replace=False)
+    np.savetxt('random_solutions_{}.txt'.format(num), all_solutions[random_solutions], fmt='%d')
 
 if __name__ == '__main__':
     # solution()
-    random_select(1000)
+    # random_select(500)
+    remove_and_select(1000, old_selected='random_solutions_500.txt')

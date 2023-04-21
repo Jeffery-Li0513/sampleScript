@@ -19,7 +19,7 @@ import re
 def json_to_extxyz(json_file, extxyz_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
-        print(len(data))
+        print("{}:{}".format(data[0]['tags'], len(data)))
         for i in range(len(data)):
             # 先处理结构，然后处理力和能量
             structure = Structure.from_dict(data[i]['structure'], fmt='json')
