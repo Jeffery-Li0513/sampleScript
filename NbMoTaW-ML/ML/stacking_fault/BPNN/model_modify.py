@@ -13,84 +13,24 @@ class BPNN(nn.Module):
         super(BPNN, self).__init__()
         self.n_feature = n_feature
         self.hidden_neuron_list = hidden_neuron_list
-        names = self.__dict__
-        # self.active = self.active_function(active_function_type)
         self.active_function_type = active_function_type
-        for i in range(len(self.hidden_neuron_list)):
-            names['n_hidden{}'.format(i+1)] = self.hidden_neuron_list[i]
         self.n_output = n_output
         self.n_layers = n_layers
         self.dropout = dropout
         self.dropout_rate = dropout_rate
-        self.input = nn.Linear(self.n_feature, self.n_hidden1)
-        if self.n_layers == 1:
+        self.input = nn.Linear(self.n_feature, self.hidden_neuron_list[0])
+        self.modulelist = nn.ModuleList()
+        for i in range(len(hidden_neuron_list)-1):
             if self.dropout:
-                self.dropout_1 = nn.Dropout(self.dropout_rate)
-            self.predict = nn.Linear(self.n_hidden1, self.n_output)
-        if self.n_layers == 2:
-            if self.dropout:
-                self.dropout_1 = nn.Dropout(self.dropout_rate)
-                self.dropout_2 = nn.Dropout(self.dropout_rate)
-            self.hidden2 = nn.Linear(self.n_hidden1, self.n_hidden2)
-            self.predict = nn.Linear(self.n_hidden2, self.n_output)
-        if self.n_layers == 3:
-            if self.dropout:
-                self.dropout_1 = nn.Dropout(self.dropout_rate)
-                self.dropout_2 = nn.Dropout(self.dropout_rate)
-                self.dropout_3 = nn.Dropout(self.dropout_rate)
-            self.hidden2 = nn.Linear(self.n_hidden1, self.n_hidden2)
-            self.hidden3 = nn.Linear(self.n_hidden2, self.n_hidden3)
-            self.predict = nn.Linear(self.n_hidden3, self.n_output)
-        if self.n_layers == 4:
-            if self.dropout:
-                self.dropout_1 = nn.Dropout(self.dropout_rate)
-                self.dropout_2 = nn.Dropout(self.dropout_rate)
-                self.dropout_3 = nn.Dropout(self.dropout_rate)
-                self.dropout_4 = nn.Dropout(self.dropout_rate)
-            self.hidden2 = nn.Linear(self.n_hidden1, self.n_hidden2)
-            self.hidden3 = nn.Linear(self.n_hidden2, self.n_hidden3)
-            self.hidden4 = nn.Linear(self.n_hidden3, self.n_hidden4)
-            self.predict = nn.Linear(self.n_hidden4, self.n_output)
+                self.modulelist.append(nn.Dropout(self.dropout_rate))
+            self.modulelist.append(nn.Linear(self.hidden_neuron_list[i], self.hidden_neuron_list[i+1]))
+            self.modulelist.append(nn.ReLU())
+        self.predict = nn.Linear(self.hidden_neuron_list[-1], self.n_output)
 
     def forward(self, x):
         out = self.input(x)
-        if self.dropout:
-            out = self.dropout_1(out)
-        # out = nn.functional.relu(out)
-        out = self.active_function(out, active_function_type=self.active_function_type)
-        if self.n_layers == 2:
-            out = self.hidden2(out)
-            if self.dropout:
-                out = self.dropout_2(out)
-            # out = nn.functional.relu(out)
-            out = self.active_function(out, active_function_type=self.active_function_type)
-        if self.n_layers == 3:
-            out = self.hidden2(out)
-            if self.dropout:
-                out = self.dropout_2(out)
-            # out = nn.functional.relu(out)
-            out = self.active_function(out, active_function_type=self.active_function_type)
-            out = self.hidden3(out)
-            if self.dropout:
-                out = self.dropout_3(out)
-            # out = nn.functional.relu(out)
-            out = self.active_function(out, active_function_type=self.active_function_type)
-        if self.n_layers == 4:
-            out = self.hidden2(out)
-            if self.dropout:
-                out = self.dropout_2(out)
-            # out = nn.functional.relu(out)
-            out = self.active_function(out, active_function_type=self.active_function_type)
-            out = self.hidden3(out)
-            if self.dropout:
-                out = self.dropout_3(out)
-            # out = nn.functional.relu(out)
-            out = self.active_function(out, active_function_type=self.active_function_type)
-            out = self.hidden4(out)
-            if self.dropout:
-                out = self.dropout_4(out)
-            # out = nn.functional.relu(out)
-            out = self.active_function(out, active_function_type=self.active_function_type)
+        for module in self.modulelist:
+            out = module(out)
         out = self.predict(out)
 
         return out

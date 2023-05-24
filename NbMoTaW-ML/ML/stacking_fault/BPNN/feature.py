@@ -12,8 +12,8 @@ MP_API_KEY = "3NTu15Jeug12iKJAyM8EgliBL6BgKO3K"
 def featurize(data_path):
     data = pd.read_csv(data_path)
     # Based on the composition of the alloy
-    # data = StrToComposition(target_col_id="composition").featurize_dataframe(data, "formula")
-    # data = alloy.WenAlloys().featurize_dataframe(data, "composition")
+    data = StrToComposition(target_col_id="composition").featurize_dataframe(data, "formula")
+    data = alloy.WenAlloys().featurize_dataframe(data, "composition")
     # Based on the structure of the alloy
 
     data.dropna(axis=1, how='any', inplace=True)
@@ -27,7 +27,7 @@ def featurize(data_path):
        'Yang omega', 'Electronegativity delta', 'Lambda entropy', 'Ta',
        'Shear modulus local mismatch', 'Configuration entropy',
        'Yang delta', 'W', 'Radii local mismatch', 'Mean cohesive energy',
-       'Total weight', 'Atomic weight mean']]
+       'Total weight', 'Atomic weight mean', 'SFE']]
 
     # data.to_csv('data_featurized.csv', index=False)
     data_fit.to_csv('dataset.csv', index=False)
@@ -52,5 +52,5 @@ def dataset_split(dataset, train=0.6, val=0.2, test=0.2):
     # return train_data, val_data, test_data
 
 if __name__ == '__main__':
-    # featurize(data_path='data_featurized.csv')
+    featurize(data_path='data_featurized.csv')
     dataset_split(dataset='dataset.csv')
